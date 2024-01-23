@@ -1,32 +1,28 @@
+from prometheus_client import Gauge, generate_latest
+from fastapi import FastAPI, Response
 import requests
-import json
-import time
 
-def check_app_health(app_url):
+app = FastAPI()
+
+# Define a Gauge metric with additional labels
+HEALTH = Gauge(
+    'app_health_status_code',
+    'HTTP Status Code of the Health Check',
+    ['method', 'endpoint']
+)
+
+def health_check():
     try:
-        response = requests.get(app_url)
-        response.raise_for_status()
-        return True
-    except requests.exceptions.RequestException as e:
-        return False
+        # Perform a GET request to your health check endpoint
+        response = requests.get('http://localhost:80')
+        return response.status_code
+    except requests.RequestException:
+        # Return a specific status code or 0 to indicate an error in making the request
+        return 0
 
-def send_slack_notification(slack_url, message):
-    payload = {
-        "text": message
-    }
-    headers = {
-        "Content-Type": "application/json"
-    }
-    try:
-        response = requests.post(slack_url, data=json.dumps(payload), headers=headers)
-        response.raise_for_status()
-    except requests.exceptions.RequestException as e:
-        pass
-
-if __name__ == "__main__":
-    app_url = "<App_URL>"
-    slack_url = "<Slack_URL>"
-    while True:
-        if not check_app_health(app_url):
-            send_slack_notification(slack_url, "App is not healthy. Please Check!")
-        time.sleep(60)
+@app.get('/metrics')
+async def metrics():
+    # Update the gauge with the latest status code from health_check
+    status_code = health_check()
+    HEALTH.labels(method='GET', endpoint='/').set(status_code)
+    return Response(content=generate_latest(), media_type="text/plain")
