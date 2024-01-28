@@ -1,0 +1,30 @@
+version: '3.7'
+services:
+  prometheus:
+    image: docker.arvancloud.ir/prom/prometheus:v2.36.0
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - '9090:9090'
+    restart: unless-stopped
+
+  alertmanager:
+    image: docker.arvancloud.ir/prom/alertmanager:v0.24.0
+    volumes:
+      - ./alertmanager:/etc/alertmanager
+      - alertmanager_data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    ports:
+      - '9093:9093'
+    restart: unless-stopped
+
+volumes:
+  prometheus_data:
+  alertmanager_data:
