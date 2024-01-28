@@ -11,7 +11,7 @@ route:
 receivers:
 - name: 'slack_notifications'
   slack_configs:
-  - api_url: 'https://hooks.slack.com/services/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'  # Your Slack webhook URL
+  - api_url: '<Slack_URL>'  # Your Slack webhook URL
     channel: '#alerts'  # Slack channel to send notifications
     send_resolved: true
     text: "Alert: {{ .Annotations.summary }}\nDescription: {{ .Annotations.description }}"
