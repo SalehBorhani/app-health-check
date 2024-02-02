@@ -15,7 +15,7 @@ HEALTH = Gauge(
 def health_check():
   try:
     # Perform a GET request to your health check endpoint
-    response = requests.get('http://localhost:80')
+    response = requests.get('http://nginx:80')
     return response.status_code
   except requests.RequestException:
     # Return a specific status code or 0 to indicate an error in making the request

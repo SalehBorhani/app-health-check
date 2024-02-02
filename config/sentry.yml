@@ -1,0 +1,12 @@
+groups:
+- name: sentry
+  rules:
+  - alert: SentryServiceDown
+    expr: sentry_health_status_code != 200
+    for: 1m
+    labels:
+      severity: critical
+      category: sentry
+    annotations:
+      summary: "One of the devops services is down for 1 minute.(instance {{ $labels.exported_instance }})"
+      description: "Devops Service is Down\n Refer to this dashboard on main org: DevOps Service Uptime\n  VALUE = {{ $value }}\n  LABELS: {{ $labels }}"

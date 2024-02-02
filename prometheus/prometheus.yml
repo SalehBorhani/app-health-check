@@ -1,10 +1,25 @@
 global:
-  scrape_interval: 15s  # Set the scrape interval
+  scrape_interval:     40s # By default, scrape targets every 10 seconds.
+  evaluation_interval: 40s # By default, scrape targets every 10 seconds.
+  scrape_timeout: 40s
+  # scrape_timeout is set to the global default (10s).
+
+  # Attach these labels to any time series or alerts when communicating with
+  # external systems (federation, remote storage, Alertmanager).
+  external_labels:
+    cluster: 'gotham'  # Set the scrape interval
+
+rule_files:
+  - "sentry.yml"
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+            - alertmanager:9093
 
 scrape_configs:
   - job_name: 'fastapi'
+    metrics_path: /metrics
     static_configs:
-      - targets: ['172.19.0.1:8000']  # Replace with your FastAPI app address and port
-
-rule_files:
-  - './alertmanager/rules.yml'
+      - targets: ['sentry:8000']  # Replace with your FastAPI app address and port
